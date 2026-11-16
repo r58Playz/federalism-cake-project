@@ -28,4 +28,4 @@ App.style = css`
 	}
 `;
 
-document.querySelector("#app").replaceWith(<App />);
+document.querySelector("#app")!.replaceWith(<App />);

@@ -17,12 +17,25 @@ Cake.style = css`
 
 let COUNT = 360;
 let ANGLE = (2 * Math.PI) / COUNT;
-let ANGLE_CSS = `${ANGLE.toFixed(8)}rad`;
-let TAN_ANGLE_CSS = `${(2 * Math.tan(ANGLE / 2)).toFixed(8)}`;
+let ANGLE_CSS = `${ANGLE}rad`;
+let SIDE_WIDTH_CSS = `${2 * Math.sin(ANGLE / 2)}`;
+let SIDE_RADIUS_CSS = `${Math.cos(ANGLE / 2)}`;
+
+let polygon = (count: number) => {
+	let polygon = "";
+	for (let i = 0; i <= count; i++) {
+		let theta = ANGLE * i;
+
+		polygon += `${(50 + Math.sin(theta) * 50).toFixed(2)}% ${(50 + Math.cos(theta) * 50).toFixed(2)}%, `;
+	}
+	return `polygon(50% 50%, ${polygon} 50% 50%)`;
+};
 
 export function CakeSlice(this: FC<{ theta: number; offset: number }>) {
 	return (
 		<div>
+			<div class="top" />
+			<div class="bottom" />
 			<div class="wall left" />
 			<div class="wall right" />
 			{use(this.theta).map((x) =>
@@ -45,24 +58,39 @@ CakeSlice.style = css`
 		left: 0;
 	}
 
+	.top, .bottom {
+		background: #f0f5;
+		width: calc(var(--cake-radius) * 2);
+		aspect-ratio: 1 / 1;
+		transform-origin: 0 0;
+
+		clip-path: ${self => use(self.theta).map(polygon)}
+	}
+	.top {
+		transform: rotateX(90deg) rotateZ(calc(${ANGLE_CSS} * ${self => use(self.offset)} * -1)) translateX(calc(var(--cake-radius) * -1)) translateY(calc(var(--cake-radius) * -1));
+	}
+	.bottom {
+		transform: rotateX(90deg) rotateZ(calc(${ANGLE_CSS} * ${self => use(self.offset)} * -1)) translateX(calc(var(--cake-radius) * -1)) translateY(calc(var(--cake-radius) * -1)) translateZ(calc(var(--cake-height) * -1));
+	}
+
 	.side {
 		background: #000;
-		width: calc(var(--cake-radius) * ${TAN_ANGLE_CSS});
-		padding: ${(COUNT * 0.0005).toFixed(8)}px;
+		width: calc(var(--cake-radius) * ${SIDE_WIDTH_CSS});
+		padding: 0 1px;
 		height: var(--cake-height);
-		transform: rotateY(calc(${ANGLE_CSS} * var(--i)))
-			translateZ(var(--cake-radius));
+		transform-origin: 0 0;
+		transform: rotateY(calc(${ANGLE_CSS} * (var(--i) + 0.5)))
+			translateZ(calc(var(--cake-radius) * ${SIDE_RADIUS_CSS})) translateX(-50%);
 	}
 
 	.wall {
-		width: var(--cake-radius);
+		width: calc(var(--cake-radius) - 1px);
 		height: var(--cake-height);
-		transform-origin: 0 -50%;
-		padding: 0 calc(var(--unit) * 0.1);
+		transform-origin: 0 0;
 	}
 	.wall.left {
 		transform: rotateY(
-			calc(${ANGLE_CSS} * ${(self) => use(self.offset).map((x) => x - 90)})
+			calc(${ANGLE_CSS} * ${(self) => use(self.offset)} - 90deg)
 		);
 		background: #f00;
 	}
@@ -71,7 +99,8 @@ CakeSlice.style = css`
 		transform: rotateY(
 			calc(
 				${ANGLE_CSS} *
-					${(self) => use(self.offset, self.theta).map(([a, b]) => a + b - 90)}
+					${(self) => use(self.offset, self.theta).map(([a, b]) => a + b)} -
+					90deg
 			)
 		);
 	}
