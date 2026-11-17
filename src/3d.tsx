@@ -2,33 +2,51 @@ import { css, type ComponentChild, type FC } from "dreamland/core";
 
 export function Scene(
 	this: FC<
-		{ perspective: number; children: ComponentChild },
+		{
+			perspective: number;
+			children: ComponentChild;
+			x?: number;
+			y?: number;
+			z?: number;
+			zoom?: number;
+
+			forcedPitch?: number;
+			forcedYaw?: number;
+		},
 		{ pitch: number; yaw: number; mouseEnabled: boolean }
 	>
 ) {
-	this.pitch = 40;
+	this.pitch = 30;
 	this.yaw = 0;
+	this.x ??= 0;
+	this.y ??= 0;
+	this.z ??= 0;
+	this.zoom ??= 1;
 
 	let onmove = (e: PointerEvent) => {
 		if (this.mouseEnabled) {
 			let x = e.movementX,
 				y = e.movementY;
-			this.yaw += x * 0.5;
-			this.pitch = Math.min(Math.max(this.pitch + y * 0.5, 0), 90);
+			if (this.forcedYaw === undefined) this.yaw += x * 0.5;
+			if (this.forcedPitch === undefined)
+				this.pitch = Math.min(Math.max(this.pitch + y * 0.5, 0), 90);
 		}
 	};
 
 	return (
 		<div
+			class="scene"
 			on:pointermove={onmove}
 			on:pointerdown={() => (this.mouseEnabled = true)}
 			on:pointerup={() => (this.mouseEnabled = false)}
 		>
-			<div class="camera">{this.children}</div>
+			<div class="camera">
+				<div class="camera2">{this.children}</div>
+			</div>
 		</div>
 	);
 }
-Scene.style = css`
+Scene.style = css<typeof Scene>`
 	:scope {
 		--unit: min(1vw, 1vh);
 
@@ -50,10 +68,20 @@ Scene.style = css`
 	}
 
 	.camera {
+		transform: translateX(calc(${(self) => use(self.x)} * var(--unit)))
+			translateY(calc(${(self) => use(self.y)} * var(--unit)))
+			translateZ(calc(${(self) => use(self.z)} * var(--unit)))
+			scale(${(self) => use(self.zoom)});
+		transition: transform 0.3s ease-out;
+	}
+	.camera2 {
 		transform: rotateX(
-				${(self) => use(self.pitch).map((x) => (-x).toFixed(2) + "deg")}
+				${(self) => use(self.pitch, self.forcedPitch).map(([a, b]) => -(b === undefined ? a : b) + "deg")}
 			)
-			rotateY(${(self) => use(self.yaw).map((x) => x.toFixed(2) + "deg")});
+			rotateY(
+				${(self) => use(self.yaw, self.forcedYaw).map(([a, b]) => (b === undefined ? a : b) + "deg")}
+			);
+		transition: transform 0.3s ease-out;
 	}
 `;
 

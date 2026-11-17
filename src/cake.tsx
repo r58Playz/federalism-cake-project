@@ -37,32 +37,50 @@ export function CakeSlice(
 		offset: number;
 		children: [ComponentChild, ComponentChild, ComponentChild, ComponentChild];
 		sideColor: string;
+
+		out?: number;
+		
+		"on:click"?: () => void,
 	}>
 ) {
+	this.out ??= 0;
 	return (
-		<div>
+		<div on:click={this["on:click"]} class:clickable={!!this["on:click"]}>
 			<div class="top">{this.children[0]}</div>
 			<div class="bottom">{this.children[1]}</div>
 			<div class="wall left">{this.children[2]}</div>
 			<div class="wall right">{this.children[3]}</div>
 			{use(this.theta).map((x) =>
 				Array.from(Array(x), (_, i) => (
-					<div class="side" style={{ "--i": this.offset + i }} />
+					<div class="side" style={{ "--i": i }} />
 				))
 			)}
 		</div>
 	);
 }
-CakeSlice.style = css`
+CakeSlice.style = css<typeof CakeSlice>`
 	:scope {
 		position: relative;
 		width: 0;
 		height: 0;
+
+		--out: calc(${self => use(self.out)} * var(--unit));
+		--middle-angle: calc(${self => use(self.theta, self.offset).map(([a, b]) => (((a + b) + b) / 2))} * ${ANGLE_CSS});
+		transform:
+			translateX(calc(sin(var(--middle-angle)) * var(--out)))
+			translateZ(calc(cos(var(--middle-angle)) * var(--out)))
+			rotateY(calc(${self => use(self.offset)} * ${ANGLE_CSS}));
+
+		transition: transform 0.3s ease-out;
 	}
 	:scope * {
 		position: absolute;
 		top: 0;
 		left: 0;
+	}
+
+	:scope.clickable {
+		cursor: pointer;
 	}
 
 	.top,
@@ -76,13 +94,11 @@ CakeSlice.style = css`
 	}
 	.top {
 		transform: rotateX(90deg)
-			rotateZ(calc(${ANGLE_CSS} * ${(self) => use(self.offset)} * -1))
 			translateX(calc(var(--cake-radius) * -1))
 			translateY(calc(var(--cake-radius) * -1));
 	}
 	.bottom {
 		transform: rotateX(90deg)
-			rotateZ(calc(${ANGLE_CSS} * ${(self) => use(self.offset)} * -1))
 			translateX(calc(var(--cake-radius) * -1))
 			translateY(calc(var(--cake-radius) * -1))
 			translateZ(calc(var(--cake-height) * -1));
@@ -104,9 +120,7 @@ CakeSlice.style = css`
 		transform-origin: 0 0;
 	}
 	.wall.left {
-		transform: rotateY(
-			calc(${ANGLE_CSS} * ${(self) => use(self.offset)} - 90deg)
-		);
+		transform: rotateY(-90deg);
 		background: #f00;
 	}
 	.wall.right {
@@ -114,7 +128,7 @@ CakeSlice.style = css`
 		transform: rotateY(
 			calc(
 				${ANGLE_CSS} *
-					${(self) => use(self.offset, self.theta).map(([a, b]) => a + b)} -
+					${(self) => use(self.theta)} -
 					90deg
 			)
 		);
