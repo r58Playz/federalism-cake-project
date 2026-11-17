@@ -13,7 +13,7 @@ function App(this: FC) {
 			<Scene perspective={200}>
 				<div class="top">
 					<Transform x={0} y={-12} z={0}>
-						<Cake radius={20} height={12}>
+						<Cake radius={30} height={12}>
 							<CakeSlice sideColor="#000" theta={45} offset={0}>
 								<div class="top" />
 								<div class="bottom" />
