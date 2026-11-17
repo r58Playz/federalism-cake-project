@@ -4,18 +4,47 @@ import { Cake, CakeSlice } from "./cake";
 
 function App(this: FC) {
 	return (
-		<div id="app">
+		<div
+			id="app"
+			on:contextmenu={(e) => {
+				e.preventDefault();
+			}}
+		>
 			<Scene perspective={200}>
-				<Transform x={0} y={-12} z={0}>
-					<Cake radius={20} height={12}>
-						<CakeSlice theta={45} offset={0} />
-						<CakeSlice theta={315} offset={45} />
+				<div class="top">
+					<Transform x={0} y={-12} z={0}>
+						<Cake radius={20} height={12}>
+							<CakeSlice sideColor="#000" theta={45} offset={0}>
+								<div class="top" />
+								<div class="bottom" />
+								<div class="left" />
+								<div class="right" />
+							</CakeSlice>
+							<CakeSlice sideColor="#000" theta={315} offset={45}>
+								<div class="top" />
+								<div class="bottom" />
+								<div class="left" />
+								<div class="right" />
+							</CakeSlice>
+						</Cake>
+					</Transform>
+				</div>
+				<div class="bottom">
+					<Cake radius={40} height={12}>
+						<CakeSlice sideColor="#000" theta={45} offset={0}>
+							<div class="top" />
+							<div class="bottom" />
+							<div class="left" />
+							<div class="right" />
+						</CakeSlice>
+						<CakeSlice sideColor="#000" theta={315} offset={45}>
+							<div class="top" />
+							<div class="bottom" />
+							<div class="left" />
+							<div class="right" />
+						</CakeSlice>
 					</Cake>
-				</Transform>
-				<Cake radius={40} height={12}>
-					<CakeSlice theta={45} offset={0} />
-					<CakeSlice theta={315} offset={45} />
-				</Cake>
+				</div>
 			</Scene>
 		</div>
 	);

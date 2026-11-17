@@ -31,13 +31,13 @@ let polygon = (count: number) => {
 	return `polygon(50% 50%, ${polygon} 50% 50%)`;
 };
 
-export function CakeSlice(this: FC<{ theta: number; offset: number }>) {
+export function CakeSlice(this: FC<{ theta: number; offset: number; children: [ComponentChild, ComponentChild, ComponentChild, ComponentChild], sideColor: string }>) {
 	return (
 		<div>
-			<div class="top" />
-			<div class="bottom" />
-			<div class="wall left" />
-			<div class="wall right" />
+			<div class="top">{this.children[0]}</div>
+			<div class="bottom">{this.children[1]}</div>
+			<div class="wall left">{this.children[2]}</div>
+			<div class="wall right">{this.children[3]}</div>
 			{use(this.theta).map((x) =>
 				Array.from(Array(x), (_, i) => (
 					<div class="side" style={{ "--i": this.offset + i }} />
@@ -67,14 +67,23 @@ CakeSlice.style = css`
 		clip-path: ${self => use(self.theta).map(polygon)}
 	}
 	.top {
-		transform: rotateX(90deg) rotateZ(calc(${ANGLE_CSS} * ${self => use(self.offset)} * -1)) translateX(calc(var(--cake-radius) * -1)) translateY(calc(var(--cake-radius) * -1));
+		transform: 
+			rotateX(90deg)
+			rotateZ(calc(${ANGLE_CSS} * ${self => use(self.offset)} * -1))
+			translateX(calc(var(--cake-radius) * -1))
+			translateY(calc(var(--cake-radius) * -1));
 	}
 	.bottom {
-		transform: rotateX(90deg) rotateZ(calc(${ANGLE_CSS} * ${self => use(self.offset)} * -1)) translateX(calc(var(--cake-radius) * -1)) translateY(calc(var(--cake-radius) * -1)) translateZ(calc(var(--cake-height) * -1));
+		transform: 
+			rotateX(90deg)
+			rotateZ(calc(${ANGLE_CSS} * ${self => use(self.offset)} * -1))
+			translateX(calc(var(--cake-radius) * -1))
+			translateY(calc(var(--cake-radius) * -1))
+			translateZ(calc(var(--cake-height) * -1));
 	}
 
 	.side {
-		background: #000;
+		background: ${self => use(self.sideColor)};
 		width: calc(var(--cake-radius) * ${SIDE_WIDTH_CSS});
 		padding: 0 1px;
 		height: var(--cake-height);
