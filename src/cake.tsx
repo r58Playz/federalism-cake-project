@@ -36,7 +36,7 @@ export function CakeSlice(
 		theta: number;
 		offset: number;
 		children: [ComponentChild, ComponentChild, ComponentChild, ComponentChild];
-		sideColor: string;
+		sideColor: (theta: number) => string;
 
 		out?: number;
 		
@@ -50,10 +50,16 @@ export function CakeSlice(
 			<div class="bottom">{this.children[1]}</div>
 			<div class="wall left">{this.children[2]}</div>
 			<div class="wall right">{this.children[3]}</div>
-			{use(this.theta).map((x) =>
-				Array.from(Array(x), (_, i) => (
-					<div class="side" style={{ "--i": i }} />
-				))
+			{use(this.theta, this.offset).map(([theta, offset]) =>
+				Array.from({ length: theta }, (_, i) => this.sideColor(offset + i + 0.5))
+					.map((color, i, colors) => (
+						<div class="side" style={{
+							"--i": i,
+							"--color": color,
+							"--overlap-left": colors[i - 1] === color ? "1px" : "0px",
+							"--overlap-right": colors[i + 1] === color ? "1px" : "0px",
+						}} />
+					))
 			)}
 		</div>
 	);
@@ -66,10 +72,11 @@ CakeSlice.style = css<typeof CakeSlice>`
 
 		--out: calc(${self => use(self.out)} * var(--unit));
 		--middle-angle: calc(${self => use(self.theta, self.offset).map(([a, b]) => (((a + b) + b) / 2))} * ${ANGLE_CSS});
+		--slice-offset: calc(${self => use(self.offset)} * ${ANGLE_CSS});
 		transform:
 			translateX(calc(sin(var(--middle-angle)) * var(--out)))
 			translateZ(calc(cos(var(--middle-angle)) * var(--out)))
-			rotateY(calc(${self => use(self.offset)} * ${ANGLE_CSS}));
+			rotateY(calc(var(--slice-offset)));
 
 		transition: transform 0.3s ease-out;
 	}
@@ -105,13 +112,14 @@ CakeSlice.style = css<typeof CakeSlice>`
 	}
 
 	.side {
-		background: ${(self) => use(self.sideColor)};
+		background: var(--color);
 		width: calc(var(--cake-radius) * ${SIDE_WIDTH_CSS});
-		padding: 0 1px;
+		padding: 0 var(--overlap-right) 0 var(--overlap-left);
 		height: var(--cake-height);
 		transform-origin: 0 0;
 		transform: rotateY(calc(${ANGLE_CSS} * (var(--i) + 0.5)))
-			translateZ(calc(var(--cake-radius) * ${SIDE_RADIUS_CSS})) translateX(-50%);
+			translateZ(calc(var(--cake-radius) * ${SIDE_RADIUS_CSS}))
+			translateX(calc(-50% + (var(--overlap-right) - var(--overlap-left)) / 2));
 	}
 
 	.wall {

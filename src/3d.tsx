@@ -17,7 +17,7 @@ export function Scene(
 	>
 ) {
 	this.pitch = 25;
-	this.yaw = 10;
+	this.yaw = 45;
 	this.x ??= 0;
 	this.y ??= 0;
 	this.z ??= 0;

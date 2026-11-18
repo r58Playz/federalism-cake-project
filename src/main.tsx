@@ -2,6 +2,9 @@ import { css, type FC } from "dreamland/core";
 import { Scene, Transform } from "./3d";
 import { Cake, CakeSlice } from "./cake";
 
+let FLAG_RED = "#B31942";
+let FLAG_BLUE = "#0A3161";
+
 function App(
 	this: FC<
 		{},
@@ -17,6 +20,15 @@ function App(
 	this.lastOpened = null;
 
 	let transition = use(this.topOpen, this.bottomOpen).map(([a, b]) => a || b);
+
+	let bottomColorFn = (theta) => {
+		return FLAG_BLUE;
+	};
+	let topColorFn = (theta) => {
+		let mod90 = theta % 90;
+		if (mod90 >= 35 && mod90 <= 55) return FLAG_RED;
+		return "#fff";
+	};
 
 	return (
 		<div
@@ -49,15 +61,15 @@ function App(
 				perspective={200}
 				x={transition.and(-70).or(0)}
 				y={transition.and(-10).or(0)}
-				zoom={transition.and(2.5).or(1)}
+				zoom={transition.and(2.5).or(1.3)}
 				forcedPitch={transition.and(10).or(undefined)}
 				forcedYaw={transition.and(40).or(undefined)}
 			>
-				<div class="top">
-					<Transform x={0} y={-12} z={0}>
-						<Cake radius={30} height={12}>
+				<div class="cake top">
+					<Transform x={0} y={-15} z={0}>
+						<Cake radius={30} height={15}>
 							<CakeSlice
-								sideColor="#000"
+								sideColor={topColorFn}
 								theta={45}
 								offset={0}
 								out={use(this.topOpen).and(30).or(2)}
@@ -71,7 +83,7 @@ function App(
 								<div class="left" />
 								<div class="right" />
 							</CakeSlice>
-							<CakeSlice sideColor="#000" theta={315} offset={45}>
+							<CakeSlice sideColor={topColorFn} theta={315} offset={45}>
 								<div class="top" />
 								<div class="bottom" />
 								<div class="left" />
@@ -80,10 +92,10 @@ function App(
 						</Cake>
 					</Transform>
 				</div>
-				<div class="bottom">
+				<div class="cake bottom">
 					<Cake radius={40} height={12}>
 						<CakeSlice
-							sideColor="#000"
+							sideColor={bottomColorFn}
 							theta={45}
 							offset={0}
 							out={use(this.bottomOpen).and(30).or(2)}
@@ -97,7 +109,7 @@ function App(
 							<div class="left" />
 							<div class="right" />
 						</CakeSlice>
-						<CakeSlice sideColor="#000" theta={315} offset={45}>
+						<CakeSlice sideColor={bottomColorFn} theta={315} offset={45}>
 							<div class="top" />
 							<div class="bottom" />
 							<div class="left" />
@@ -119,13 +131,34 @@ App.style = css`
 		height: 100%;
 	}
 
+	.cake :is(.top, .bottom, .left, .right) {
+		width: 100%;
+		height: 100%;
+	}
+
+	.cake.top .top {
+		background: repeating-conic-gradient(
+			from var(--slice-offset),
+			#fff 0deg 34.95deg,
+			${FLAG_RED} 35.05deg 54.95deg,
+			#fff 55.05deg 90deg
+		);
+	}
+	.cake.bottom .top {
+		background: ${FLAG_BLUE};
+	}
+
+	.cake .bottom {
+		background: #000;
+	}
+
 	.overlay * {
 		box-sizing: border-box;
 	}
 	.overlay {
 		position: absolute;
-		width: 40vw;
-		height: 80vh;
+		width: 45vw;
+		height: 90vh;
 		bottom: 0;
 		left: 0;
 		z-index: 99999;
@@ -139,9 +172,8 @@ App.style = css`
 		padding: 1rem;
 
 		opacity: 0;
-		transition: opacity 0.5s ease;
+		transition: opacity 0.3s ease;
 	}
-
 	.card {
 		height: 100%;
 
@@ -151,7 +183,6 @@ App.style = css`
 		background: #222;
 		color: #fff;
 	}
-
 	.card h1 {
 		margin: 0;
 	}
