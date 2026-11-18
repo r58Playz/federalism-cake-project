@@ -220,7 +220,7 @@ function App(
 	let top = use(this.open).map((x) => x === "top");
 	let bottom = use(this.open).map((x) => x === "bottom");
 
-	let bottomColorFn = (theta: number) => FLAG_BLUE;
+	let bottomColorFn = () => FLAG_BLUE;
 	let topColorFn = (theta: number) =>
 		Math.abs((theta % 90) - 45) < 10 ? FLAG_RED : "#fff";
 

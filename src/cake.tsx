@@ -46,7 +46,7 @@ export function CakeSlice(
 ) {
 	this.out ??= 0;
 	return (
-		<div on:click={this["on:click"]} class:clickable={!!this["on:click"]}>
+		<div on:click={this["on:click"] || (() => {})} class:clickable={!!this["on:click"]}>
 			<div class="top">{this.children[0]}</div>
 			<div class="bottom">{this.children[1]}</div>
 			<div class="wall left">{this.children[2]}</div>
