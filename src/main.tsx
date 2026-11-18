@@ -8,11 +8,13 @@ function App(
 		{
 			topOpen: boolean;
 			bottomOpen: boolean;
+			lastOpened: "top" | "bottom" | null;
 		}
 	>
 ) {
 	this.topOpen = false;
 	this.bottomOpen = false;
+	this.lastOpened = null;
 
 	let transition = use(this.topOpen, this.bottomOpen).map(([a, b]) => a || b);
 
@@ -24,12 +26,20 @@ function App(
 			}}
 		>
 			<div class="overlay">
-				<div class="card-container" class:open={use(this.topOpen)}>
+				<div
+					class="card-container"
+					class:open={use(this.topOpen)}
+					class:front={use(this.lastOpened).map((level) => level === "top")}
+				>
 					<div class="card">
 						<h1>Federal Level</h1>
 					</div>
 				</div>
-				<div class="card-container" class:open={use(this.bottomOpen)}>
+				<div
+					class="card-container"
+					class:open={use(this.bottomOpen)}
+					class:front={use(this.lastOpened).map((level) => level === "bottom")}
+				>
 					<div class="card">
 						<h1>State Level</h1>
 					</div>
@@ -53,6 +63,7 @@ function App(
 								out={use(this.topOpen).and(30).or(2)}
 								on:click={() => {
 									this.topOpen = !this.topOpen;
+									if (this.topOpen) this.lastOpened = "top";
 								}}
 							>
 								<div class="top" />
@@ -78,6 +89,7 @@ function App(
 							out={use(this.bottomOpen).and(30).or(2)}
 							on:click={() => {
 								this.bottomOpen = !this.bottomOpen;
+								if (this.bottomOpen) this.lastOpened = "bottom";
 							}}
 						>
 							<div class="top" />
@@ -146,6 +158,10 @@ App.style = css`
 
 	.open {
 		opacity: 1;
+	}
+
+	.front {
+		z-index: 1;
 	}
 `;
 

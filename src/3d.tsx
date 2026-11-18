@@ -16,8 +16,8 @@ export function Scene(
 		{ pitch: number; yaw: number; mouseEnabled: boolean }
 	>
 ) {
-	this.pitch = 30;
-	this.yaw = 0;
+	this.pitch = 25;
+	this.yaw = 10;
 	this.x ??= 0;
 	this.y ??= 0;
 	this.z ??= 0;
@@ -76,10 +76,16 @@ Scene.style = css<typeof Scene>`
 	}
 	.camera2 {
 		transform: rotateX(
-				${(self) => use(self.pitch, self.forcedPitch).map(([a, b]) => -(b === undefined ? a : b) + "deg")}
+				${(self) => use(self.pitch, self.forcedPitch).map(([pitch, forced]) => -(forced === undefined ? pitch : forced) + "deg")}
 			)
 			rotateY(
-				${(self) => use(self.yaw, self.forcedYaw).map(([a, b]) => (b === undefined ? a : b) + "deg")}
+				${(self) =>
+					use(self.yaw, self.forcedYaw).map(([yaw, forced]) => {
+						if (forced === undefined) return yaw + "deg";
+						// Choose the equivalent forced angle nearest to the drag angle.
+						const delta = ((((forced - yaw + 180) % 360) + 360) % 360) - 180;
+						return yaw + delta + "deg";
+					})}
 			);
 		transition: transform 0.3s ease-out;
 	}
