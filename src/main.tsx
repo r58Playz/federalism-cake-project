@@ -4,7 +4,7 @@ import { Cake, CakeSlice } from "./cake";
 
 let FLAG_RED = "#B31942";
 let FLAG_BLUE = "#0A3161";
-let STRIPE_HALF_WIDTH = Math.sin((10 * Math.PI) / 180);
+let STRIPE_HALF_WIDTH = Math.sin((10 * Math.PI) / 180) + "";
 
 function Star(this: FC) {
 	return (
@@ -55,21 +55,94 @@ Star.style = css`
 	}
 `;
 
+function FederalSlice(this: FC) {
+	return (
+		<div>
+			<div class="court" />
+			<div class="house" />
+			<div class="senate" />
+			<div class="president" />
+		</div>
+	);
+}
+FederalSlice.style = css`
+	:scope {
+		height: 100%;
+		width: 100%;
+
+		display: grid;
+		gap: calc(var(--unit) * 1.25);
+
+		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+		grid-template-areas:
+			"court court court"
+			"house senate president";
+
+		background: #8b171a;
+	}
+
+	.court {
+		grid-area: court;
+
+		background: rgb(213, 166, 189);
+	}
+	.house {
+		grid-area: house;
+
+		background: rgb(164, 194, 244);
+	}
+	.senate {
+		grid-area: senate;
+		background: rgb(221, 126, 107);
+	}
+	.president {
+		grid-area: president;
+		background: rgb(255, 217, 102);
+	}
+`;
+
+function StateSlice(this: FC) {
+	return (
+		<div>
+			<div class="state" />
+			<div class="local" />
+		</div>
+	);
+}
+StateSlice.style = css`
+	:scope {
+		height: 100%;
+
+		display: flex;
+		flex-direction: column;
+		gap: calc(var(--unit) * 1.25);
+
+		background: #8b171a;
+	}
+	.state {
+		background: rgb(180, 167, 214);
+		flex: 2;
+	}
+	.local {
+		background: rgb(182, 215, 168);
+		flex: 1;
+	}
+`;
+
 function App(
 	this: FC<
 		{},
 		{
-			topOpen: boolean;
-			bottomOpen: boolean;
-			lastOpened: "top" | "bottom" | null;
+			open: "top" | "bottom" | null;
 		}
 	>
 ) {
-	this.topOpen = false;
-	this.bottomOpen = false;
-	this.lastOpened = null;
+	this.open = null;
 
-	let transition = use(this.topOpen, this.bottomOpen).map(([a, b]) => a || b);
+	let transition = use(this.open).map((x) => x !== null);
+	let top = use(this.open).map((x) => x === "top");
+	let bottom = use(this.open).map((x) => x === "bottom");
 
 	let bottomColorFn = (theta: number) => FLAG_BLUE;
 	let topColorFn = (theta: number) =>
@@ -83,34 +156,79 @@ function App(
 	return (
 		<div
 			id="app"
-			on:contextmenu={(e) => {
+			on:contextmenu={(e: Event) => {
 				e.preventDefault();
 			}}
 		>
-			<div class="overlay">
+			<div class="overlay infooverlay">
+				<div class="card-container open">
+					<div class="card">
+						<h1>AP Gov Federalism Cake</h1>
+						<p>
+							This cake is a model of American dual federalism. It includes two
+							layers, with the bottom layer (blue with stars) representing the
+							state government and the top layer (white with red stripes)
+							representing the federal government. Drag to rotate the cake
+							around. Click on the cake slices to learn more.
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="overlay cardoverlay">
 				<div
 					class="card-container"
-					class:open={use(this.topOpen)}
-					class:front={use(this.lastOpened).map((level) => level === "top")}
+					class:open={use(this.open).map((x) => x === "top")}
 				>
 					<div class="card">
-						<h1>Federal Level</h1>
+						<h2>Federal Level</h2>
+						<p>
+							At the federal level, separation of powers and checks and balances
+							ensure that none of the branches of government have too much
+							power. The Supreme Court, represented by the light pink sponge,
+							has the final say on interpreting the Constitution and laws
+							resulting in it being at the top, above the executive branch,
+							House, and Senate. The House, Senate, and President all check each
+							other, with the President reviewing and potentially vetoing laws
+							approved by Congress. Congress can veto the President's veto with
+							a super majority vote as well. The President executes the laws
+							passed by Congress, and nominates justices for the Supreme Court
+							that are then verified by the Senate. Because of this, the House
+							(represented by blue sponge for the Federalists), the Senate
+							(represented by red sponge for the Anti-Federalists), and the
+							executive branch (represented by gold sponge), are side-by-side
+							below the Supreme Court. The sponges are separated by a layer of
+							red strawberry jam, representing the strict separation of powers
+							while still allowing each branch to check and verify the others.
+						</p>
 					</div>
 				</div>
 				<div
 					class="card-container"
-					class:open={use(this.bottomOpen)}
-					class:front={use(this.lastOpened).map((level) => level === "bottom")}
+					class:open={use(this.open).map((x) => x === "bottom")}
 				>
 					<div class="card">
-						<h1>State Level</h1>
+						<h2>State Level</h2>
+						<p>
+							At the state level, power is shared between the state and local
+							governments. The state can manage reserved powers like education,
+							elections, criminal/civil law, or licensing. However, execution of
+							these reserved powers is often handled by the local governments.
+							For example, states create standards and regulations for education
+							and local school districts handle following these regulations and
+							running schools. Since local governments still follow and execute
+							state laws, the lavender sponge representing state government has
+							a larger share than the green sponge representing local
+							government. The sponges are separated by a layer of red strawberry
+							jam, showing that local government still has some autonomy in
+							execution of laws.
+						</p>
 					</div>
 				</div>
 			</div>
 			<Scene
 				perspective={200}
-				x={transition.and(-70).or(0)}
-				y={transition.and(-10).or(0)}
+				x={transition.and(-70).or(25)}
+				y={transition.and(-10).or(-5)}
 				zoom={transition.and(2.5).or(1.3)}
 				forcedPitch={transition.and(10).or(undefined)}
 				forcedYaw={transition.and(40).or(undefined)}
@@ -122,22 +240,19 @@ function App(
 								sideColor={topColorFn}
 								theta={45}
 								offset={0}
-								out={use(this.topOpen).and(30).or(2)}
-								on:click={() => {
-									this.topOpen = !this.topOpen;
-									if (this.topOpen) this.lastOpened = "top";
-								}}
+								out={top.and(30).or(2)}
+								on:click={() => (this.open = top.value ? null : "top")}
 							>
 								<div class="top" />
 								<div class="bottom" />
-								<div class="left" />
-								<div class="right" />
+								<FederalSlice />
+								<FederalSlice />
 							</CakeSlice>
 							<CakeSlice sideColor={topColorFn} theta={315} offset={45}>
 								<div class="top" />
 								<div class="bottom" />
-								<div class="left" />
-								<div class="right" />
+								<FederalSlice />
+								<FederalSlice />
 							</CakeSlice>
 						</Cake>
 					</Transform>
@@ -149,16 +264,13 @@ function App(
 							sideEl={bottomDivFn}
 							theta={45}
 							offset={0}
-							out={use(this.bottomOpen).and(30).or(2)}
-							on:click={() => {
-								this.bottomOpen = !this.bottomOpen;
-								if (this.bottomOpen) this.lastOpened = "bottom";
-							}}
+							out={bottom.and(30).or(2)}
+							on:click={() => (this.open = bottom.value ? null : "bottom")}
 						>
 							<div class="top" />
 							<div class="bottom" />
-							<div class="left" />
-							<div class="right" />
+							<StateSlice />
+							<StateSlice />
 						</CakeSlice>
 						<CakeSlice
 							sideColor={bottomColorFn}
@@ -168,8 +280,8 @@ function App(
 						>
 							<div class="top" />
 							<div class="bottom" />
-							<div class="left" />
-							<div class="right" />
+							<StateSlice />
+							<StateSlice />
 						</CakeSlice>
 					</Cake>
 				</div>
@@ -216,42 +328,50 @@ App.style = css`
 	}
 	.overlay {
 		position: absolute;
-		width: 45vw;
-		height: 90vh;
-		bottom: 0;
-		left: 0;
+
 		z-index: 99999;
 		pointer-events: none;
 	}
 
+	.infooverlay {
+		width: 40vw;
+		top: 0;
+		left: 0;
+	}
+
+	.cardoverlay {
+		width: 47.5vw;
+		bottom: 0;
+		left: 0;
+	}
+
+	.cardoverlay .card-container {
+		bottom: 0;
+	}
+
 	.card-container {
 		position: absolute;
-		inset: 0;
-
 		padding: 1rem;
 
 		opacity: 0;
 		transition: opacity 0.3s ease;
 	}
 	.card {
+		display: flow-root;
 		height: 100%;
 
 		border-radius: 1rem;
-		padding: 2rem;
+		padding: 0 1rem;
 
 		background: #222;
 		color: #fff;
 	}
-	.card h1 {
-		margin: 0;
+	.card :is(h1, h2) {
+		margin: 1rem 0;
 	}
 
 	.open {
 		opacity: 1;
-	}
-
-	.front {
-		z-index: 1;
 	}
 `;
 
