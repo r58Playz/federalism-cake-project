@@ -247,6 +247,9 @@ function App(
 							representing the federal government. Drag to rotate the cake
 							around. Click on the cake slices to learn more.
 						</p>
+						<p>
+							Source code at <a href="https://github.com/r58playz/federalism-cake-project" target="_blank">GitHub (r58Playz/federalism-cake-project)</a>
+						</p>
 					</div>
 				</div>
 			</div>
@@ -369,6 +372,10 @@ function App(
 	);
 }
 App.style = css`
+	a, a:hover, a:active, a:visited {
+		color: cornflowerblue;
+	}
+	
 	:scope {
 		height: 100%;
 		position: relative;
@@ -409,7 +416,6 @@ App.style = css`
 		position: absolute;
 
 		z-index: 99999;
-		pointer-events: none;
 	}
 
 	.infooverlay {
@@ -422,6 +428,7 @@ App.style = css`
 		width: 47.5vw;
 		bottom: 0;
 		left: 0;
+		pointer-events: none;
 	}
 
 	.cardoverlay .card-container {
