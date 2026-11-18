@@ -6,6 +6,82 @@ let FLAG_RED = "#B31942";
 let FLAG_BLUE = "#0A3161";
 let STRIPE_HALF_WIDTH = Math.sin((10 * Math.PI) / 180) + "";
 
+function Flag(this: FC<{ poleHeight: number; height: number }>) {
+	return (
+		<div>
+			<div class="pole" />
+			<div class="flag">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					xmlns:xlink="http://www.w3.org/1999/xlink"
+					width="1235"
+					height="650"
+					viewBox="0 0 7410 3900"
+				>
+					<path d="M0,0h7410v3900H0" fill="#b31942" />
+					<path
+						d="M0,450H7410m0,600H0m0,600H7410m0,600H0m0,600H7410m0,600H0"
+						stroke="#FFF"
+						stroke-width="300"
+					/>
+					<path d="M0,0h2964v2100H0" fill="#0a3161" />
+					<g fill="#FFF">
+						<g id="s18">
+							<g id="s9">
+								<g id="s5">
+									<g id="s4">
+										<path
+											id="s"
+											d="M247,90 317.534230,307.082039 132.873218,172.917961H361.126782L176.465770,307.082039z"
+										/>
+										<use xlink:href="#s" y="420" />
+										<use xlink:href="#s" y="840" />
+										<use xlink:href="#s" y="1260" />
+									</g>
+									<use xlink:href="#s" y="1680" />
+								</g>
+								<use xlink:href="#s4" x="247" y="210" />
+							</g>
+							<use xlink:href="#s9" x="494" />
+						</g>
+						<use xlink:href="#s18" x="988" />
+						<use xlink:href="#s9" x="1976" />
+						<use xlink:href="#s5" x="2470" />
+					</g>
+				</svg>
+			</div>
+		</div>
+	);
+}
+Flag.style = css`
+	:scope {
+		position: absolute;
+		width: 0;
+		height: 0;
+	}
+
+	.pole {
+		position: absolute;
+		height: calc(var(--unit) * ${(self) => use(self.poleHeight)});
+		width: calc(var(--unit) * 0.5);
+
+		background: #000;
+	}
+
+	.flag {
+		position: absolute;
+		translate: 0 -100%;
+		height: calc(var(--unit) * ${(self) => use(self.height)});
+		aspect-ratio: 1.9;
+	}
+
+	.flag svg {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+	}
+`;
+
 function Star(this: FC) {
 	return (
 		<div>
@@ -233,6 +309,9 @@ function App(
 				forcedPitch={transition.and(10).or(undefined)}
 				forcedYaw={transition.and(40).or(undefined)}
 			>
+				<Transform x={0} y={-20} z={0}>
+					<Flag poleHeight={5} height={5} />
+				</Transform>
 				<div class="cake top">
 					<Transform x={0} y={-15} z={0}>
 						<Cake radius={30} height={15}>
