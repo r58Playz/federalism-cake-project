@@ -37,6 +37,7 @@ export function CakeSlice(
 		offset: number;
 		children: [ComponentChild, ComponentChild, ComponentChild, ComponentChild];
 		sideColor: (theta: number) => string;
+		sideEl?: (theta: number) => HTMLElement | undefined;
 
 		out?: number;
 		
@@ -58,7 +59,7 @@ export function CakeSlice(
 							"--color": color,
 							"--overlap-left": colors[i - 1] === color ? "1px" : "0px",
 							"--overlap-right": colors[i + 1] === color ? "1px" : "0px",
-						}} />
+						}}>{this.sideEl?.(offset + i + 0.5)}</div>
 					))
 			)}
 		</div>

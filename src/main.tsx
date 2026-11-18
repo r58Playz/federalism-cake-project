@@ -4,6 +4,56 @@ import { Cake, CakeSlice } from "./cake";
 
 let FLAG_RED = "#B31942";
 let FLAG_BLUE = "#0A3161";
+let STRIPE_HALF_WIDTH = Math.sin((10 * Math.PI) / 180);
+
+function Star(this: FC) {
+	return (
+		<div>
+			<div class="root">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="400"
+					height="400"
+					viewBox="-0.035 -0.035 0.07 0.07"
+				>
+					<defs>
+						<polygon
+							id="pt"
+							points="-0.1624598481164531,0 0,-0.5 0.1624598481164531,0"
+							transform="scale(0.0616)"
+							fill="#FFF"
+						/>
+					</defs>
+					<use href="#pt" transform="rotate(-144)" />
+					<use href="#pt" transform="rotate(-72)" />
+					<use href="#pt" />
+					<use href="#pt" transform="rotate(72)" />
+					<use href="#pt" transform="rotate(144)" />
+				</svg>
+			</div>
+		</div>
+	);
+}
+Star.style = css`
+	:scope {
+		width: 100%;
+		height: 100%;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-rows: minmax(0, 1fr);
+		place-items: center;
+	}
+	.root {
+		width: calc(var(--unit) * 10);
+		height: calc(var(--unit) * 10);
+
+		transform: translateZ(1px);
+	}
+	svg {
+		width: 100%;
+		height: 100%;
+	}
+`;
 
 function App(
 	this: FC<
@@ -21,13 +71,13 @@ function App(
 
 	let transition = use(this.topOpen, this.bottomOpen).map(([a, b]) => a || b);
 
-	let bottomColorFn = (theta) => {
-		return FLAG_BLUE;
-	};
-	let topColorFn = (theta) => {
-		let mod90 = theta % 90;
-		if (mod90 >= 35 && mod90 <= 55) return FLAG_RED;
-		return "#fff";
+	let bottomColorFn = (theta: number) => FLAG_BLUE;
+	let topColorFn = (theta: number) =>
+		Math.abs((theta % 90) - 45) < 10 ? FLAG_RED : "#fff";
+
+	let bottomDivFn = (theta: number) => {
+		let x = theta % 20;
+		return x === 12.5 ? <Star /> : undefined;
 	};
 
 	return (
@@ -96,6 +146,7 @@ function App(
 					<Cake radius={40} height={12}>
 						<CakeSlice
 							sideColor={bottomColorFn}
+							sideEl={bottomDivFn}
 							theta={45}
 							offset={0}
 							out={use(this.bottomOpen).and(30).or(2)}
@@ -109,7 +160,12 @@ function App(
 							<div class="left" />
 							<div class="right" />
 						</CakeSlice>
-						<CakeSlice sideColor={bottomColorFn} theta={315} offset={45}>
+						<CakeSlice
+							sideColor={bottomColorFn}
+							sideEl={bottomDivFn}
+							theta={315}
+							offset={45}
+						>
 							<div class="top" />
 							<div class="bottom" />
 							<div class="left" />
@@ -137,12 +193,15 @@ App.style = css`
 	}
 
 	.cake.top .top {
-		background: repeating-conic-gradient(
-			from var(--slice-offset),
-			#fff 0deg 34.95deg,
-			${FLAG_RED} 35.05deg 54.95deg,
-			#fff 55.05deg 90deg
-		);
+		--stripe-half-width: calc(var(--cake-radius) * ${STRIPE_HALF_WIDTH});
+		--stripe:
+			transparent calc(50% - var(--stripe-half-width) - 0.5px),
+			${FLAG_RED} calc(50% - var(--stripe-half-width) + 0.5px)
+				calc(50% + var(--stripe-half-width) - 0.5px),
+			transparent calc(50% + var(--stripe-half-width) + 0.5px);
+		background:
+			linear-gradient(calc(45deg + var(--slice-offset)), var(--stripe)),
+			linear-gradient(calc(135deg + var(--slice-offset)), var(--stripe)), #fff;
 	}
 	.cake.bottom .top {
 		background: ${FLAG_BLUE};
